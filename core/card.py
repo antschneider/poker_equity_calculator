@@ -1,26 +1,17 @@
 RANKS = "23456789TJQKA"
 SUITS = "cdhs"
-PRIMES = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41] 
-SUIT_MASKS = {'c': 1, 'd': 2, 'h': 4, 's': 8}
+PRIMES = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41]
 
 def from_str(card_str: str) -> int:
     """Converts card string (e.g., 'Ah') -> 32-bit card integer"""
-    if len(card_str) != 2:
-        raise ValueError(f'Invalid card format: "{card_str}". Expected exactly two characters (e.g., "Ah").')
-    
-    rank_char, suit_char = card_str[0].upper(), card_str[1].lower()
-
-    if rank_char not in RANKS:
-        raise ValueError(f"Invalid card rank: '{rank_char}'. Must be one of {RANKS}.")
-    if suit_char not in SUITS:
-        raise ValueError(f"Invalid card suit: '{suit_char}'. Must be one of {SUITS}.")
+    rank_char, suit_char = card_str[0], card_str[1]
 
     r = RANKS.index(rank_char)
-    s = SUIT_MASKS[suit_char]
+    s = 1 << SUITS.index(suit_char)
     prime = PRIMES[r]
-    return (prime << 16) | (r << 12) | (s << 8)
+    return (prime << 16) | (r << 12) | s
 
-def get_rank_idx(card: int) -> int:
+def get_rank(card: int) -> int:
     """Extracts rank (0-12) from integer."""
     return (card >> 12) & 0xF
 
@@ -28,13 +19,13 @@ def get_rank_char(card: int) -> str:
     """Extracts rank character from integer."""
     return RANKS[(card >> 12) & 0xF]
 
-def get_suit_mask(card: int) -> int:
+def get_suit(card: int) -> int:
     """Extracts suit mask (1, 2, 4, 8) from integer."""
-    return (card >> 8) & 0xF
+    return card & 0xF
 
 def get_suit_char(card: int) -> str:
     """Extracts suit character from integer."""
-    return SUITS[((card >> 8) & 0xF).bit_length() - 1]
+    return SUITS[(card & 0xF).bit_length() - 1]
 
 def get_prime(card: int) -> int:
     """Extracts prime factor from integer."""

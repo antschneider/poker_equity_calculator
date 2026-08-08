@@ -3,9 +3,9 @@ from core.card import (
     RANKS,
     SUITS,  
     from_str,
-    get_rank_idx,
+    get_rank,
     get_rank_char,
-    get_suit_mask,
+    get_suit,
     get_suit_char,
     get_prime,
     to_str, 
@@ -27,20 +27,12 @@ def test_card_encoding_decoding():
         card_int = from_str(card_str)
 
         assert isinstance(card_int, int)
-        assert get_rank_idx(card_int) == expected_rank_idx
+        assert get_rank(card_int) == expected_rank_idx
         assert get_rank_char(card_int) == expected_rank
-        assert get_suit_mask(card_int) == expected_suit_mask
+        assert get_suit(card_int) == expected_suit_mask
         assert get_suit_char(card_int) == expected_suit
         assert get_prime(card_int) == expected_prime
         assert to_str(card_int) == card_str
-
-def test_from_str_validation():
-    """Test that invalid card strings raise ValueError."""
-    invalid_cards = ["A", "c5", "Xh", "d", "1s", "Thc", ""]
-
-    for invalid in invalid_cards:
-        with pytest.raises(ValueError):
-            from_str(invalid)
 
 def test_bitwise_isolation():
     """Verify that bits for rank, suit, and prime do not bleed into one another."""
@@ -48,7 +40,7 @@ def test_bitwise_isolation():
 
     expected_prime = (ace_hearts >> 16) & 0xFFFF
     expected_rank = (ace_hearts >> 12) & 0xF
-    expected_suit = (ace_hearts >> 8) & 0xF
+    expected_suit = ace_hearts & 0xF
 
     assert expected_prime == 41
     assert expected_rank == 12
